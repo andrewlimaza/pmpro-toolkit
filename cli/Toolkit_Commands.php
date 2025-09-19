@@ -1,5 +1,5 @@
 <?php
-namespace TK;
+namespace PMPro_Toolkit;
 
 use WP_CLI;
 use WP_CLI_Command;
@@ -94,7 +94,7 @@ class Toolkit_Commands extends WP_CLI_Command {
 			return;
 		}
 		$this->confirm_or_continue( $dry, __( 'Are you sure you want to scrub (anonymize) all member emails and transaction IDs?', 'pmpro-toolkit' ) );
-		\pmprodev_scrub_member_data( __( 'Scrubbing user data...', 'pmpro-toolkit' ) );
+		\pmprodev_scrub_member_data( __( 'Scrubbing user data...', 'pmpro-toolkit' ), true );
 		WP_CLI::success( __( 'Done.', 'pmpro-toolkit' ) );
 	}
 
@@ -111,7 +111,7 @@ class Toolkit_Commands extends WP_CLI_Command {
 			return;
 		}
 		$this->confirm_or_continue( $dry, __( 'Are you sure you want to DELETE all non-admin users?', 'pmpro-toolkit' ) );
-		\pmprodev_delete_users( __( 'Deleting non-admins...', 'pmpro-toolkit' ) );
+		\pmprodev_delete_users( __( 'Deleting non-admins...', 'pmpro-toolkit' ), true );
 		WP_CLI::success( __( 'Done.', 'pmpro-toolkit' ) );
 	}
 
@@ -257,7 +257,7 @@ class Toolkit_Commands extends WP_CLI_Command {
 		}
 		$this->confirm_or_continue( $dry, sprintf( __( 'Cancel all active memberships for level %d (including recurring subscriptions)?', 'pmpro-toolkit' ), $level ) );
 		$_REQUEST['cancel_level_id'] = $level;
-		\pmprodev_cancel_level( __( 'Cancelling users...', 'pmpro-toolkit' ) );
+		\pmprodev_cancel_level( __( 'Cancelling users...', 'pmpro-toolkit' ), true );
 		WP_CLI::success( __( 'Done.', 'pmpro-toolkit' ) );
 	}
 

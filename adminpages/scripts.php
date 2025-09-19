@@ -356,7 +356,7 @@ function pmprodev_clean_level_data( $message ) {
  * @since 1.0
  * @return void
  */
-function pmprodev_scrub_member_data( $message ) {
+function pmprodev_scrub_member_data( $message , $wp_cli = false ) {
 	global $wpdb;
 
 	pmprodev_output_message( $message );
@@ -430,7 +430,9 @@ function pmprodev_scrub_member_data( $message ) {
 		$offset += $batch_size;
 	}
 
-	pmprodev_process_complete();
+	if ( ! $wp_cli ) {
+		pmprodev_process_complete();
+	}
 }
 
 /**
@@ -440,7 +442,7 @@ function pmprodev_scrub_member_data( $message ) {
  * @since 1.0
  * @return void
  */
-function pmprodev_delete_users( $message ) {
+function pmprodev_delete_users( $message, $wp_cli = false ) {
 	global $wpdb;
 	pmprodev_output_message( $message );
 	$user_ids = $wpdb->get_col( "SELECT ID FROM {$wpdb->users}" );
@@ -451,7 +453,10 @@ function pmprodev_delete_users( $message ) {
 			echo '. ';
 		}
 	}
-	pmprodev_process_complete();
+
+	if ( ! $wp_cli ) {
+		pmprodev_process_complete();
+	}
 }
 
 /**
@@ -494,12 +499,13 @@ function pmprodev_clean_pmpro_options( $message ) {
  *
  * @param string $message The message to display after the process is complete.
  * @since 1.0
- * @return string The message to display after the process is complete.
+ * @return void
  */
 function pmprodev_clear_vvl_report( $message ) {
 	global $wpdb;
-	$wpdb->query("DELETE FROM $wpdb->usermeta WHERE meta_key = 'pmpro_visits' OR meta_key = 'pmpro_views' OR meta_key = 'pmpro_logins'");
-	$wpdb->query("DELETE FROM $wpdb->options WHERE option_name = 'pmpro_visits' OR option_name = 'pmpro_views' OR option_name = 'pmpro_logins'");
+	$wpdb->query( "TRUNCATE {$wpdb->pmpro_visits}" );
+	$wpdb->query( "TRUNCATE {$wpdb->pmpro_views}" );
+	$wpdb->query( "TRUNCATE {$wpdb->pmpro_logins}" );
 	pmprodev_output_message( $message );
 }
 
@@ -615,10 +621,11 @@ function pmprodev_give_level( $message ) {
  * Cancel all users with a specific membership level.
  *
  * @param string $message The message to display after the process is complete.
+ * @param bool $wp_cli Whether the function is being run via WP-CLI, to help suppress HTML output.
  * @since 1.0
  * @return void
  */
-function pmprodev_cancel_level( $message ) {
+function pmprodev_cancel_level( $message, $wp_cli = false ) {
 	global $wpdb;
 
 	$cancel_level_id = intval( $_REQUEST['cancel_level_id'] );
@@ -626,14 +633,18 @@ function pmprodev_cancel_level( $message ) {
 	// Bail if the level ID is invalid
 	if ( $cancel_level_id < 1 ) {
 		pmprodev_output_message( __( 'Please enter a valid level ID.', 'pmpro-toolkit' ), 'warning' );
-		pmprodev_expand_actions( 'pmprodev_cancel_level' );
+		if ( ! $wp_cli ) {
+			pmprodev_expand_actions( 'pmprodev_cancel_level' );
+		}
 		return;
 	}
 
 	//Bail if no users found
 	if ( empty( $user_ids ) ) {
-		pmprodev_output_message( sprintf( __( 'Couldn\'t find users with level ID %d.', 'pmpro-toolkit' ), $cancel_level_id ), 'warning' );
-		pmprodev_expand_actions( 'pmprodev_cancel_level' );
+		pmprodev_output_message( sprintf( __( "Couldn't find users with level ID %d.", 'pmpro-toolkit' ), $cancel_level_id ), 'warning' );
+		if ( ! $wp_cli ) {
+			pmprodev_expand_actions( 'pmprodev_cancel_level' );
+		}
 	}
 
 	$message = sprintf( $message, count( $user_ids ) );
@@ -642,7 +653,9 @@ function pmprodev_cancel_level( $message ) {
 		pmpro_cancelMembershipLevel( $cancel_level_id, $user_id );
 	}
 
-	pmprodev_process_complete();
+	if ( ! $wp_cli ) {
+		pmprodev_process_complete();
+	}
 }
 
 /**
